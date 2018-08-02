@@ -9,9 +9,12 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
+import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Handler;
+import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
@@ -20,29 +23,57 @@ import java.util.Random;
 import app.app.rapidlite.R;
 import app.app.rapidlite.activity.MainActivity;
 
-public class BgService extends IntentService {
+public class BgService extends Service {
 
-    public BgService() {
-        super("BgService");
-    }
+//    public BgService() {
+//        super("BgService");
+//    }
 
     @Override
-    protected void onHandleIntent(@Nullable Intent intent) {
-        Log.e("onHandleIntent","TRUE");
-
+    public int onStartCommand(Intent intent, int flags, int startId) {
         if (intent!=null && intent.getStringExtra("from")!=null){
             sendNotification("Alert",intent.getStringExtra("body"));
         }
-
+        return START_NOT_STICKY;
     }
 
+//    @Override
+//    protected void onHandleIntent(@Nullable Intent intent) {
+//        Log.e("onHandleIntent","TRUE");
+//
+//        if (intent!=null && intent.getStringExtra("from")!=null){
+//            sendNotification("Alert",intent.getStringExtra("body"));
+//        }
+//
+//    }
+   private Ringtone r;
     private void sendNotification(String Title, String message) {
 
+        try {
+            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
+             r = RingtoneManager.getRingtone(getApplicationContext(), notification);
+            r.play();
+            r.setLooping(false);
+
+            Handler hnd = new Handler();
+            hnd.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        r.stop();
+                    } catch (Exception e){}
+                }
+            },8000);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         Intent intent = null;
-        intent = new Intent(getApplicationContext(), MainActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent = new Intent(Intent.ACTION_VIEW, Uri.parse(message));
+//        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+//        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), new Random().nextInt() /* Request code */, intent,
                 PendingIntent.FLAG_ONE_SHOT);
 
@@ -95,6 +126,7 @@ public class BgService extends IntentService {
                     .setContentText(message)
                     .setAutoCancel(true)
                     .setSound(defaultSoundUri)
+                    .setVibrate(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400})
                     .setStyle(new android.support.v4.app.NotificationCompat.BigTextStyle().bigText(message))
                     .setContentIntent(pendingIntent);
 
@@ -106,5 +138,21 @@ public class BgService extends IntentService {
         }
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        try {
+            Log.e("STOP","1");
+            r.stop();
+            Log.e("STOP","2");
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+    }
 
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
+    }
 }

@@ -16,21 +16,35 @@
             android:layout_width="match_parent"
             android:layout_height="?actionBarSize">
 
-            <LinearLayout
+            <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:gravity="center">
+                android:layout_height="?actionBarSize"
+                >
 
                 <TextView
                     android:id="@+id/tvTitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:singleLine="true"
+                    android:layout_centerInParent="true"
                     android:textSize="@dimen/_18sdp"
                     android:textColor="@color/white"
                     />
 
-            </LinearLayout>
+                <ImageView
+                    android:id="@+id/img_logout"
+                    android:layout_width="@dimen/_30sdp"
+                    android:layout_height="@dimen/_30sdp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:layout_margin="@dimen/_5sdp"
+                    android:padding="@dimen/_5sdp"
+                    android:src="@drawable/icon_logout"/>
+
+
+            </RelativeLayout>
 
         </android.support.v7.widget.Toolbar>
     </android.support.design.widget.AppBarLayout>
